@@ -15,6 +15,7 @@
       background-color: #f5f5f5;
       transition: background-color 0.5s ease;
     }
+
     #score {
       position: fixed;
       top: 10px;
@@ -28,6 +29,7 @@
       z-index: 100;
       line-height: 1.5em;
     }
+
     #score button {
       background-color: #fff;
       color: #333;
@@ -39,6 +41,7 @@
       cursor: pointer;
       transition: background-color 0.3s ease;
     }
+
     #score button:hover {
       background-color: #eee;
     }
@@ -52,6 +55,7 @@
       border-radius: 6px;
       z-index: 100;
     }
+
     #game-container {
       height: 100%;
       display: flex;
@@ -59,6 +63,7 @@
       justify-content: center;
       align-items: center;
     }
+
     .kanji-row {
       display: flex;
       justify-content: center;
@@ -66,11 +71,13 @@
       gap: 30px;
       flex-wrap: wrap;
     }
+
     .kanji-box {
       display: flex;
       flex-direction: column;
       align-items: center;
     }
+
     .kanji-button {
       font-size: 20vw;
       border: none;
@@ -78,23 +85,28 @@
       cursor: pointer;
       transition: transform 0.2s ease;
     }
+
     .kanji-button:hover {
       transform: scale(1.05);
     }
+
     .kanji-button:active {
       transform: scale(0.95);
     }
+
     .info-button {
       background: none;
       border: none;
       cursor: pointer;
       margin-top: 0.3em;
     }
+
     .info-button i {
       font-size: 1.8em;
       color: #007bff;
       transition: transform 0.3s, color 0.3s;
     }
+
     .info-button:hover i {
       color: #0056b3;
       transform: scale(1.3);
@@ -111,6 +123,7 @@
       background-color: rgba(0,0,0,0.4);
       animation: fadeIn 0.3s ease;
     }
+
     .modal-content {
       background-color: #fff;
       margin: 10% auto;
@@ -125,6 +138,7 @@
       max-height: 70vh;
       overflow-y: auto;
     }
+
     .close-button {
       position: absolute;
       top: 8px;
@@ -134,12 +148,20 @@
       color: #333;
       cursor: pointer;
     }
+
     .modal p {
       margin: 6px 0;
     }
+
+    .modal-content a:hover i {
+      transform: scale(1.3);
+      color: #0056b3;
+    }
+
     @keyframes fadeIn {
       from {opacity: 0;} to {opacity: 1;}
     }
+
     @keyframes scaleIn {
       from {transform: scale(0.8);} to {transform: scale(1);}
     }
@@ -157,6 +179,7 @@
       z-index: 100;
       transition: transform 0.3s;
     }
+
     #history-button:hover {
       transform: scale(1.1);
     }
@@ -207,6 +230,7 @@
     <option value="medium" selected>Средне</option>
     <option value="hard">Сложно</option>
   </select>
+
   <div id="score">
     Счёт: <span id="scoreValue">0</span><br>
     Стрик: <span id="streakValue">0</span><br>
@@ -231,7 +255,6 @@
     </div>
   </div>
 
-  <!-- Модальное окно инфо -->
   <div id="kanjiModal" class="modal" onclick="hideModal(event)">
     <div class="modal-content" id="modalContent">
       <span class="close-button" onclick="closeModal()">×</span>
@@ -239,7 +262,6 @@
     </div>
   </div>
 
-  <!-- История -->
   <button id="history-button" onclick="showHistory()">
     <i class="fas fa-book-open"></i>
   </button>
@@ -359,8 +381,15 @@
       const data = current[index];
       const modal = document.getElementById("kanjiModal");
       const modalData = document.getElementById("modalData");
+      const wiktionaryLink = `https://en.wiktionary.org/wiki/${data.kanji}`;
+
       modalData.innerHTML = `
-        <h2 style="font-size: 2em; margin-bottom: 0.2em;">${data.kanji}</h2>
+        <h2 style="font-size: 2em; margin-bottom: 0.2em; display: flex; align-items: center; gap: 10px;">
+          ${data.kanji}
+          <a href="${wiktionaryLink}" target="_blank" title="Открыть в Wiktionary" style="text-decoration: none;">
+            <i class="fas fa-external-link-alt" style="font-size: 0.6em; color: #007bff; transition: transform 0.2s, color 0.2s;"></i>
+          </a>
+        </h2>
         <p><strong>Значения:</strong> ${data.meanings.join(", ")}</p>
         <p><strong>Черт:</strong> ${data.stroke_count}</p>
         <p><strong>Онъёми:</strong> ${data.on_readings.join(", ") || "—"}</p>
