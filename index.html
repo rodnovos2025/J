@@ -4,8 +4,6 @@
   <meta charset="UTF-8">
   <title>Kanji Game</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
   <style>
@@ -108,6 +106,8 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.2);
       animation: scaleIn 0.3s ease;
       position: relative;
+      max-height: 70vh;
+      overflow-y: auto;
     }
     .close-button {
       position: absolute;
@@ -127,6 +127,61 @@
     @keyframes scaleIn {
       from {transform: scale(0.8);} to {transform: scale(1);}
     }
+
+    #history-button {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #fff;
+      border: none;
+      border-radius: 50%;
+      padding: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      cursor: pointer;
+      z-index: 100;
+      transition: transform 0.3s;
+    }
+    #history-button:hover {
+      transform: scale(1.1);
+    }
+
+    .history-modal-content {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      width: 95%;
+      max-width: 500px;
+      font-size: 0.95em;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      animation: scaleIn 0.3s ease;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    #historyList li {
+      margin: 6px 0;
+    }
+
+    .history-entry {
+      margin-bottom: 8px;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 6px;
+    }
+
+    .history-kanji {
+      font-size: 1.2em;
+      font-weight: bold;
+    }
+
+    .history-details {
+      font-size: 0.9em;
+      color: #555;
+    }
+
   </style>
 </head>
 <body>
@@ -155,7 +210,7 @@
     </div>
   </div>
 
-  <!-- Модальное окно -->
+  <!-- Модальное окно инфо -->
   <div id="kanjiModal" class="modal" onclick="hideModal(event)">
     <div class="modal-content" id="modalContent">
       <span class="close-button" onclick="closeModal()">×</span>
@@ -163,17 +218,31 @@
     </div>
   </div>
 
+  <!-- История -->
+  <button id="history-button" onclick="showHistory()">
+    <i class="fas fa-book-open"></i>
+  </button>
+
+  <div id="historyModal" class="modal" onclick="hideHistoryModal(event)">
+    <div class="history-modal-content">
+      <span class="close-button" onclick="closeHistory()">×</span>
+      <h3>История</h3>
+      <ul id="historyList"></ul>
+    </div>
+  </div>
+
   <script>
     let allKanji = [];
     let current = [];
     let score = 0;
+    let lockInput = false;
     const scoreEl = document.getElementById("score");
     const difficultyEl = document.getElementById("difficulty-select");
+    const historyList = document.getElementById("historyList");
 
     async function fetchAllKanji() {
       const res = await fetch('https://kanjiapi.dev/v1/kanji/joyo');
       allKanji = await res.json();
-      loadKanji();
     }
 
     async function getKanjiData(kanji) {
@@ -192,6 +261,7 @@
 
     async function loadKanji() {
       document.body.style.backgroundColor = "#f5f5f5";
+      lockInput = true;
       const filter = getDifficultyFilter();
 
       let d1, d2;
@@ -212,6 +282,7 @@
       current = [d1, d2];
       document.getElementById("kanji1").textContent = d1.kanji;
       document.getElementById("kanji2").textContent = d2.kanji;
+      lockInput = false;
     }
 
     function updateScoreDisplay() {
@@ -219,6 +290,9 @@
     }
 
     function checkAnswer(choice) {
+      if (lockInput) return;
+      lockInput = true;
+
       const other = choice === 0 ? 1 : 0;
       const correct = current[choice].stroke_count > current[other].stroke_count;
 
@@ -230,6 +304,18 @@
       }
 
       updateScoreDisplay();
+
+      const entry = document.createElement("li");
+      entry.className = "history-entry";
+      entry.innerHTML = `
+        <div class="history-kanji">${current[0].kanji} (${current[0].stroke_count}) vs ${current[1].kanji} (${current[1].stroke_count})</div>
+        <div class="history-details">
+          ${current[0].meanings.join(", ")} | 
+          ${current[1].meanings.join(", ")}
+        </div>
+      `;
+      historyList.prepend(entry);
+
       setTimeout(() => {
         loadKanji();
       }, 1000);
@@ -245,6 +331,7 @@
         <p><strong>Черт:</strong> ${data.stroke_count}</p>
         <p><strong>Онъёми:</strong> ${data.on_readings.join(", ") || "—"}</p>
         <p><strong>Кунъёми:</strong> ${data.kun_readings.join(", ") || "—"}</p>
+        ${data.name_readings && data.name_readings.length ? `<p><strong>Имена:</strong> <em>${data.name_readings.join(", ")}</em></p>` : ""}
         ${data.jlpt ? `<p><strong>JLPT:</strong> N${data.jlpt}</p>` : ""}
       `;
       modal.style.display = "block";
@@ -260,13 +347,29 @@
       }
     }
 
+    function showHistory() {
+      document.getElementById("historyModal").style.display = "block";
+    }
+
+    function closeHistory() {
+      document.getElementById("historyModal").style.display = "none";
+    }
+
+    function hideHistoryModal(event) {
+      if (event.target.id === "historyModal") {
+        closeHistory();
+      }
+    }
+
     document.getElementById("kanji1").onclick = () => checkAnswer(0);
     document.getElementById("kanji2").onclick = () => checkAnswer(1);
     difficultyEl.onchange = () => {
       loadKanji();
     };
 
-    fetchAllKanji();
+    window.onload = () => {
+      fetchAllKanji().then(() => loadKanji());
+    };
   </script>
 </body>
-  </html>
+</html>
