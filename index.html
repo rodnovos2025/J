@@ -19,14 +19,30 @@
       position: fixed;
       top: 10px;
       right: 20px;
-      font-size: 1.2em;
+      font-size: 1em;
       background: #333;
       color: #fff;
-      padding: 6px 12px;
-      border-radius: 10px;
-      opacity: 0.9;
+      padding: 8px 14px;
+      border-radius: 12px;
+      opacity: 0.95;
       z-index: 100;
+      line-height: 1.5em;
     }
+    #score button {
+      background-color: #fff;
+      color: #333;
+      border: none;
+      padding: 4px 10px;
+      margin-top: 4px;
+      font-size: 0.85em;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    #score button:hover {
+      background-color: #eee;
+    }
+
     #difficulty-select {
       position: fixed;
       top: 10px;
@@ -191,7 +207,12 @@
     <option value="medium" selected>Средне</option>
     <option value="hard">Сложно</option>
   </select>
-  <div id="score">Счёт: 0</div>
+  <div id="score">
+    Счёт: <span id="scoreValue">0</span><br>
+    Стрик: <span id="streakValue">0</span><br>
+    Макс. стрик: <span id="maxStreakValue">0</span><br>
+    <button onclick="resetScore()">Сбросить</button>
+  </div>
 
   <div id="game-container">
     <div class="kanji-row">
@@ -235,6 +256,8 @@
     let allKanji = [];
     let current = [];
     let score = 0;
+    let streak = 0;
+    let maxStreak = 0;
     let lockInput = false;
     const scoreEl = document.getElementById("score");
     const difficultyEl = document.getElementById("difficulty-select");
@@ -286,7 +309,15 @@
     }
 
     function updateScoreDisplay() {
-      scoreEl.textContent = `Счёт: ${score}`;
+      document.getElementById("scoreValue").textContent = score;
+      document.getElementById("streakValue").textContent = streak;
+      document.getElementById("maxStreakValue").textContent = maxStreak;
+    }
+
+    function resetScore() {
+      score = 0;
+      streak = 0;
+      updateScoreDisplay();
     }
 
     function checkAnswer(choice) {
@@ -298,8 +329,11 @@
 
       if (correct) {
         score++;
+        streak++;
+        if (streak > maxStreak) maxStreak = streak;
         document.body.style.backgroundColor = "#aaffaa";
       } else {
+        streak = 0;
         document.body.style.backgroundColor = "#ffaaaa";
       }
 
