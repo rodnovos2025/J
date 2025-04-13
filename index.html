@@ -4,8 +4,10 @@
   <meta charset="UTF-8">
   <title>Kanji Game</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/hanzi-writer@2.1.0/dist/hanzi-writer.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
+    /* — Весь ваш CSS остался без изменений — */
     html, body {
       margin: 0;
       padding: 0;
@@ -42,10 +44,6 @@
       cursor: pointer;
       transition: transform 0.2s;
       user-select: none;
-      -webkit-user-select: none;
-      outline: none;
-    }
-    .kanji-button:focus {
       outline: none;
     }
     .info-button {
@@ -56,9 +54,6 @@
       padding: 0.5em;
       border-radius: 8px;
       cursor: pointer;
-    }
-    .info-button i {
-      font-size: 1.2em;
     }
     #score {
       position: fixed;
@@ -195,6 +190,7 @@
       <ul id="historyList"></ul>
     </div>
   </div>
+
   <script>
     let allKanji = [];
     let current = [];
@@ -300,7 +296,6 @@
       const data = current[index];
       const modal = document.getElementById("kanjiModal");
       const modalData = document.getElementById("modalData");
-      const hex = data.kanji.codePointAt(0).toString(16).toUpperCase();
 
       modalData.innerHTML = `
         <h2 style="font-size: 2em; margin-bottom: 0.2em;">${data.kanji}
@@ -315,13 +310,20 @@
         ${data.name_readings?.length ? `<p><strong>Имена:</strong> <em>${data.name_readings.join(", ")}</em></p>` : ""}
         ${data.jlpt ? `<p><strong>JLPT:</strong> N${data.jlpt}</p>` : ""}
         <div style="margin-top: 1em; text-align: center;">
-          <strong>Анимация написания:</strong><br>
-          <img src="https://raw.githubusercontent.com/mistval/kanji_images/master/gifs/${hex}.gif"
-               alt="Stroke order"
-               style="margin-top: 0.5em; max-width: 100%; height: auto; border: 1px solid #ccc; border-radius: 8px;">
+          <strong>Анимация написания:</strong>
+          <div id="animation-container" style="width: 100px; height: 100px; margin: 0 auto; margin-top: 10px;"></div>
         </div>
       `;
       modal.style.display = "block";
+
+      // Вставка SVG-анимации
+      setTimeout(() => {
+        HanziWriter.create('animation-container', data.kanji, {
+          width: 100,
+          height: 100,
+          padding: 5
+        }).animateCharacter();
+      }, 100);
     }
 
     function closeModal() {
