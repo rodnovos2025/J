@@ -194,7 +194,7 @@
     let current = [];
     let score = 0;
     let streak = 0;
-    let maxStreak = parseInt(localStorage.getItem("maxStreak")) || 0;
+    let maxStreak = localStorage.getItem("maxStreak") ? parseInt(localStorage.getItem("maxStreak")) : 0;
     let lockInput = false;
     const difficultyEl = document.getElementById("difficulty-select");
     const historyList = document.getElementById("historyList");
@@ -264,7 +264,7 @@
         streak++;
         if (streak > maxStreak) {
           maxStreak = streak;
-          localStorage.setItem("maxStreak", maxStreak.toString());
+          localStorage.setItem("maxStreak", maxStreak);
         }
         document.body.style.backgroundColor = "#aaffaa";
       } else {
@@ -282,13 +282,13 @@
         <div class="history-kanji">
           <div>
             <div id="${id0}" style="width:80px;height:80px;"></div>
-            <div>${current[0].kanji} (${current[0].stroke_count})</div>
+            <div><a href="https://en.wiktionary.org/wiki/${current[0].kanji}" target="_blank">${current[0].kanji}</a> (${current[0].stroke_count})</div>
             <div>${current[0].meanings.join(", ")}</div>
             <div>${current[0].on_readings.join(", ") || "—"} / ${current[0].kun_readings.join(", ") || "—"}</div>
           </div>
           <div>
             <div id="${id1}" style="width:80px;height:80px;"></div>
-            <div>${current[1].kanji} (${current[1].stroke_count})</div>
+            <div><a href="https://en.wiktionary.org/wiki/${current[1].kanji}" target="_blank">${current[1].kanji}</a> (${current[1].stroke_count})</div>
             <div>${current[1].meanings.join(", ")}</div>
             <div>${current[1].on_readings.join(", ") || "—"} / ${current[1].kun_readings.join(", ") || "—"}</div>
           </div>
@@ -377,8 +377,8 @@
     difficultyEl.onchange = () => loadKanji();
 
     window.onload = () => {
-      fetchAllKanji().then(() => loadKanji());
       updateScoreDisplay();
+      fetchAllKanji().then(() => loadKanji());
     };
   </script>
 </body>
