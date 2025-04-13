@@ -7,7 +7,6 @@
   <script src="https://cdn.jsdelivr.net/npm/hanzi-writer@2.1.0/dist/hanzi-writer.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
-    /* Весь CSS остался без изменений */
     html, body {
       margin: 0;
       padding: 0;
@@ -195,7 +194,7 @@
     let current = [];
     let score = 0;
     let streak = 0;
-    let maxStreak = 0;
+    let maxStreak = parseInt(localStorage.getItem("maxStreak")) || 0;
     let lockInput = false;
     const difficultyEl = document.getElementById("difficulty-select");
     const historyList = document.getElementById("historyList");
@@ -263,7 +262,10 @@
       if (correct) {
         score++;
         streak++;
-        if (streak > maxStreak) maxStreak = streak;
+        if (streak > maxStreak) {
+          maxStreak = streak;
+          localStorage.setItem("maxStreak", maxStreak.toString());
+        }
         document.body.style.backgroundColor = "#aaffaa";
       } else {
         streak = 0;
@@ -376,6 +378,7 @@
 
     window.onload = () => {
       fetchAllKanji().then(() => loadKanji());
+      updateScoreDisplay();
     };
   </script>
 </body>
