@@ -7,7 +7,7 @@
   <script src="https://cdn.jsdelivr.net/npm/hanzi-writer@2.1.0/dist/hanzi-writer.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
-    /* — Весь ваш CSS остался без изменений — */
+    /* Весь CSS остался без изменений */
     html, body {
       margin: 0;
       padding: 0;
@@ -129,20 +129,19 @@
     }
     .history-entry {
       border-bottom: 1px solid #ddd;
-      padding: 0.5em 0;
+      padding: 1em 0;
     }
     .history-kanji {
-      font-size: 1.4em;
-      margin-bottom: 0.2em;
+      display: flex;
+      gap: 2em;
+      align-items: center;
+      justify-content: space-around;
     }
     .history-details {
       font-size: 0.9em;
       color: #666;
-    }
-    .history-kanji i {
-      margin-left: 0.5em;
-      font-size: 0.9em;
-      color: #007bff;
+      margin-top: 0.5em;
+      text-align: center;
     }
   </style>
 </head>
@@ -273,23 +272,43 @@
 
       updateScoreDisplay();
 
+      const id0 = "svg0_" + Date.now();
+      const id1 = "svg1_" + Date.now();
       const entry = document.createElement("li");
       entry.className = "history-entry";
       entry.innerHTML = `
         <div class="history-kanji">
-          ${current[0].kanji} (${current[0].stroke_count}) vs ${current[1].kanji} (${current[1].stroke_count})
-          <a href="https://en.wiktionary.org/wiki/${current[0].kanji}" target="_blank"><i class="fas fa-link"></i></a>
-          <a href="https://en.wiktionary.org/wiki/${current[1].kanji}" target="_blank"><i class="fas fa-link"></i></a>
-        </div>
-        <div class="history-details">
-          ${current[0].meanings.join(", ")} | ${current[1].meanings.join(", ")}
+          <div>
+            <div id="${id0}" style="width:80px;height:80px;"></div>
+            <div>${current[0].kanji} (${current[0].stroke_count})</div>
+            <div>${current[0].meanings.join(", ")}</div>
+            <div>${current[0].on_readings.join(", ") || "—"} / ${current[0].kun_readings.join(", ") || "—"}</div>
+          </div>
+          <div>
+            <div id="${id1}" style="width:80px;height:80px;"></div>
+            <div>${current[1].kanji} (${current[1].stroke_count})</div>
+            <div>${current[1].meanings.join(", ")}</div>
+            <div>${current[1].on_readings.join(", ") || "—"} / ${current[1].kun_readings.join(", ") || "—"}</div>
+          </div>
         </div>
       `;
       historyList.prepend(entry);
 
       setTimeout(() => {
+        HanziWriter.create(id0, current[0].kanji, {
+          width: 80,
+          height: 80,
+          delayBetweenStrokes: 100,
+          strokeAnimationSpeed: 2
+        }).loopCharacterAnimation();
+        HanziWriter.create(id1, current[1].kanji, {
+          width: 80,
+          height: 80,
+          delayBetweenStrokes: 100,
+          strokeAnimationSpeed: 2
+        }).loopCharacterAnimation();
         loadKanji();
-      }, 1000);
+      }, 500);
     }
 
     function showModal(index) {
@@ -316,13 +335,14 @@
       `;
       modal.style.display = "block";
 
-      // Вставка SVG-анимации
       setTimeout(() => {
         HanziWriter.create('animation-container', data.kanji, {
           width: 100,
           height: 100,
-          padding: 5
-        }).animateCharacter();
+          padding: 5,
+          delayBetweenStrokes: 100,
+          strokeAnimationSpeed: 2
+        }).loopCharacterAnimation();
       }, 100);
     }
 
@@ -352,9 +372,7 @@
 
     document.getElementById("kanji1").onclick = () => checkAnswer(0);
     document.getElementById("kanji2").onclick = () => checkAnswer(1);
-    difficultyEl.onchange = () => {
-      loadKanji();
-    };
+    difficultyEl.onchange = () => loadKanji();
 
     window.onload = () => {
       fetchAllKanji().then(() => loadKanji());
