@@ -1,438 +1,366 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-  <meta charset="UTF-8">
-  <title>Kanji Game</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<!DOCTYPE html>  <html lang="ja">    <head>    
+  <meta charset="UTF-8">    
+  <title>Kanji Game</title>    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">    
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">    
+  <style>    
+    html, body {    
+      margin: 0;    
+      padding: 0;    
+      height: 100%;    
+      font-family: 'Segoe UI', sans-serif;    
+      background-color: #f5f5f5;    
+      transition: background-color 0.5s ease;    
+    }  #game-container {    
+  display: flex;    
+  flex-direction: column;    
+  justify-content: center;    
+  align-items: center;    
+  height: 80%;    
+}    .kanji-row {
+display: flex;
+justify-content: center;
+gap: 2em;
+}
 
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #f5f5f5;
-      transition: background-color 0.5s ease;
-    }
+.kanji-box {
+display: flex;
+flex-direction: column;
+align-items: center;
+}
+* {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.kanji-button {
+font-size: 5em;
+width: 150px;
+height: 150px;
+background-color: white;
+border: 2px solid #333;
+border-radius: 15px;
+cursor: pointer;
+transition: transform 0.2s;
+}
 
-    #score {
-      position: fixed;
-      top: 10px;
-      right: 20px;
-      font-size: 1em;
-      background: #333;
-      color: #fff;
-      padding: 8px 14px;
-      border-radius: 12px;
-      opacity: 0.95;
-      z-index: 100;
-      line-height: 1.5em;
-    }
+.kanji-button:hover {
 
-    #score button {
-      background-color: #fff;
-      color: #333;
-      border: none;
-      padding: 4px 10px;
-      margin-top: 4px;
-      font-size: 0.85em;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
+}
 
-    #score button:hover {
-      background-color: #eee;
-    }
+.info-button {
+margin-top: 10px;
+background-color: #007bff;
+color: white;
+border: none;
+padding: 0.5em;
+border-radius: 8px;
+cursor: pointer;
+}
 
-    #difficulty-select {
-      position: fixed;
-      top: 10px;
-      left: 20px;
-      font-size: 1em;
-      padding: 4px 8px;
-      border-radius: 6px;
-      z-index: 100;
-    }
+.info-button i {
+font-size: 1.2em;
+}
 
-    #game-container {
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-    }
+#score {
+position: fixed;
+top: 10px;
+left: 10px;
+background-color: white;
+padding: 10px;
+border-radius: 10px;
+box-shadow: 0 0 5px #ccc;
+font-size: 1em;
+z-index: 5;
+}
 
-    .kanji-row {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 30px;
-      flex-wrap: wrap;
-    }
+select {
+position: fixed;
+top: 10px;
+right: 10px;
+font-size: 1em;
+padding: 5px;
+}
 
-    .kanji-box {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
+.modal {
+display: none;
+position: fixed;
+z-index: 10;
+left: 0;
+top: 0;
+width: 100%;
+height: 100%;
+overflow: auto;
+background-color: rgba(0,0,0,0.6);
+}
 
-    .kanji-button {
-      font-size: 20vw;
-      border: none;
-      background: none;
-      cursor: pointer;
-      transition: transform 0.2s ease;
-    }
+.modal-content {
+background-color: white;
+margin: 10% auto;
+padding: 20px;
+border: 1px solid #888;
+width: 80%;
+max-width: 500px;
+border-radius: 10px;
+}
 
-    .kanji-button:hover {
-      transform: scale(1.05);
-    }
+.close-button {
+color: #aaa;
+float: right;
+font-size: 28px;
+font-weight: bold;
+cursor: pointer;
+}
 
-    .kanji-button:active {
-      transform: scale(0.95);
-    }
+.close-button:hover {
+color: black;
+}
 
-    .info-button {
-      background: none;
-      border: none;
-      cursor: pointer;
-      margin-top: 0.3em;
-    }
+#history-button {
+position: fixed;
+bottom: 10px;
+left: 10px;
+background: white;
+border: none;
+font-size: 1.5em;
+padding: 0.3em 0.6em;
+border-radius: 8px;
+cursor: pointer;
+box-shadow: 0 0 5px #ccc;
+z-index: 5;
+}
 
-    .info-button i {
-      font-size: 1.8em;
-      color: #007bff;
-      transition: transform 0.3s, color 0.3s;
-    }
+.history-modal-content {
+background-color: white;
+margin: 5% auto;
+padding: 20px;
+border: 1px solid #888;
+width: 90%;
+max-width: 700px;
+border-radius: 10px;
+max-height: 80%;
+overflow-y: auto;
+}
 
-    .info-button:hover i {
-      color: #0056b3;
-      transform: scale(1.3);
-    }
+.history-entry {
+border-bottom: 1px solid #ddd;
+padding: 0.5em 0;
+}
 
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 200;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0,0,0,0.4);
-      animation: fadeIn 0.3s ease;
-    }
+.history-kanji {
+font-size: 1.4em;
+margin-bottom: 0.2em;
+}
 
-    .modal-content {
-      background-color: #fff;
-      margin: 10% auto;
-      padding: 20px;
-      border-radius: 12px;
-      width: 90%;
-      max-width: 400px;
-      font-size: 0.95em;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-      animation: scaleIn 0.3s ease;
-      position: relative;
-      max-height: 70vh;
-      overflow-y: auto;
-    }
+.history-details {
+font-size: 0.9em;
+color: #666;
+}
 
-    .close-button {
-      position: absolute;
-      top: 8px;
-      right: 12px;
-      font-size: 1.4em;
-      font-weight: bold;
-      color: #333;
-      cursor: pointer;
-    }
+.history-kanji i {
+margin-left: 0.5em;
+font-size: 0.9em;
+color: #007bff;
+}
 
-    .modal p {
-      margin: 6px 0;
-    }
+  </style>    
+</head>    
+<body>    
+  <select id="difficulty-select">    
+    <option value="easy">Легко</option>    
+    <option value="medium" selected>Средне</option>    
+    <option value="hard">Сложно</option>    
+  </select>    
+  <div id="score">    
+    Счёт: <span id="scoreValue">0</span><br>    
+    Стрик: <span id="streakValue">0</span><br>    
+    Макс. стрик: <span id="maxStreakValue">0</span><br>    
+    <button onclick="resetScore()">Сбросить</button>    
+  </div>    <div id="game-container">    
+    <div class="kanji-row">    
+      <div class="kanji-box">    
+        <button id="kanji1" class="kanji-button">?</button>    
+        <button class="info-button" onclick="showModal(0)">    
+          <i class="fas fa-circle-info"></i>    
+        </button>    
+      </div>    
+      <div class="kanji-box">    
+        <button id="kanji2" class="kanji-button">?</button>    
+        <button class="info-button" onclick="showModal(1)">    
+          <i class="fas fa-circle-info"></i>    
+        </button>    
+      </div>    
+    </div>    
+  </div>    <div id="kanjiModal" class="modal" onclick="hideModal(event)">    
+    <div class="modal-content" id="modalContent">    
+      <span class="close-button" onclick="closeModal()">×</span>    
+      <div id="modalData"></div>    
+    </div>    
+  </div>    <button id="history-button" onclick="showHistory()">    
+    <i class="fas fa-book-open"></i>    
+  </button>    <div id="historyModal" class="modal" onclick="hideHistoryModal(event)">    
+    <div class="history-modal-content">    
+      <span class="close-button" onclick="closeHistory()">×</span>    
+      <h3>История</h3>    
+      <ul id="historyList"></ul>    
+    </div>    
+  </div>    <script>    
+    let allKanji = [];    
+    let current = [];    
+    let score = 0;    
+    let streak = 0;    
+    let maxStreak = 0;    
+    let lockInput = false;    
+    const difficultyEl = document.getElementById("difficulty-select");    
+    const historyList = document.getElementById("historyList");    async function fetchAllKanji() {    
+  const res = await fetch('https://kanjiapi.dev/v1/kanji/joyo');    
+  allKanji = await res.json();    
+}    
 
-    .modal-content a:hover i {
-      transform: scale(1.3);
-      color: #0056b3;
-    }
+async function getKanjiData(kanji) {    
+  const res = await fetch(`https://kanjiapi.dev/v1/kanji/${kanji}`);    
+  return await res.json();    
+}    
 
-    @keyframes fadeIn {
-      from {opacity: 0;} to {opacity: 1;}
-    }
+function getDifficultyFilter() {    
+  const diff = difficultyEl.value;    
+  return (strokes) => {    
+    if (diff === "easy") return strokes <= 6;    
+    if (diff === "medium") return strokes >= 7 && strokes <= 12;    
+    if (diff === "hard") return strokes > 12;    
+  };    
+}    
 
-    @keyframes scaleIn {
-      from {transform: scale(0.8);} to {transform: scale(1);}
-    }
+async function loadKanji() {    
+  document.body.style.backgroundColor = "#f5f5f5";    
+  lockInput = true;    
+  const filter = getDifficultyFilter();    
 
-    #history-button {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: #fff;
-      border: none;
-      border-radius: 50%;
-      padding: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-      cursor: pointer;
-      z-index: 100;
-      transition: transform 0.3s;
-    }
+  let d1, d2;    
+  while (true) {    
+    const k1 = allKanji[Math.floor(Math.random() * allKanji.length)];    
+    d1 = await getKanjiData(k1);    
+    if (!filter(d1.stroke_count)) continue;    
 
-    #history-button:hover {
-      transform: scale(1.1);
-    }
+    const k2 = allKanji[Math.floor(Math.random() * allKanji.length)];    
+    d2 = await getKanjiData(k2);    
+    if (    
+      k1 !== k2 &&    
+      filter(d2.stroke_count) &&    
+      d1.stroke_count !== d2.stroke_count    
+    ) break;    
+  }    
 
-    .history-modal-content {
-      background-color: #fff;
-      padding: 20px;
-      border-radius: 12px;
-      width: 95%;
-      max-width: 500px;
-      font-size: 0.95em;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-      animation: scaleIn 0.3s ease;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      max-height: 90vh;
-      overflow-y: auto;
-    }
+  current = [d1, d2];    
+  document.getElementById("kanji1").textContent = d1.kanji;    
+  document.getElementById("kanji2").textContent = d2.kanji;    
+  lockInput = false;    
+}    
 
-    #historyList li {
-      margin: 6px 0;
-    }
+function updateScoreDisplay() {    
+  document.getElementById("scoreValue").textContent = score;    
+  document.getElementById("streakValue").textContent = streak;    
+  document.getElementById("maxStreakValue").textContent = maxStreak;    
+}    
 
-    .history-entry {
-      margin-bottom: 8px;
-      border-bottom: 1px solid #ddd;
-      padding-bottom: 6px;
-    }
+function resetScore() {    
+  score = 0;    
+  streak = 0;    
+  updateScoreDisplay();    
+}    
 
-    .history-kanji {
-      font-size: 1.2em;
-      font-weight: bold;
-    }
+function checkAnswer(choice) {    
+  if (lockInput) return;    
+  lockInput = true;    
 
-    .history-details {
-      font-size: 0.9em;
-      color: #555;
-    }
+  const other = choice === 0 ? 1 : 0;    
+  const correct = current[choice].stroke_count > current[other].stroke_count;    
 
-  </style>
-</head>
-<body>
+  if (correct) {    
+    score++;    
+    streak++;    
+    if (streak > maxStreak) maxStreak = streak;    
+    document.body.style.backgroundColor = "#aaffaa";    
+  } else {    
+    streak = 0;    
+    document.body.style.backgroundColor = "#ffaaaa";    
+  }    
 
-  <select id="difficulty-select">
-    <option value="easy">Легко</option>
-    <option value="medium" selected>Средне</option>
-    <option value="hard">Сложно</option>
-  </select>
+  updateScoreDisplay();    
 
-  <div id="score">
-    Счёт: <span id="scoreValue">0</span><br>
-    Стрик: <span id="streakValue">0</span><br>
-    Макс. стрик: <span id="maxStreakValue">0</span><br>
-    <button onclick="resetScore()">Сбросить</button>
-  </div>
+  const entry = document.createElement("li");    
+  entry.className = "history-entry";    
+  entry.innerHTML = `    
+    <div class="history-kanji">    
+      ${current[0].kanji} (${current[0].stroke_count}) vs ${current[1].kanji} (${current[1].stroke_count})    
+      <a href="https://en.wiktionary.org/wiki/${current[0].kanji}" target="_blank"><i class="fas fa-link"></i></a>    
+      <a href="https://en.wiktionary.org/wiki/${current[1].kanji}" target="_blank"><i class="fas fa-link"></i></a>    
+    </div>    
+    <div class="history-details">    
+      ${current[0].meanings.join(", ")} | ${current[1].meanings.join(", ")}    
+    </div>    
+  `;    
+  historyList.prepend(entry);    
 
-  <div id="game-container">
-    <div class="kanji-row">
-      <div class="kanji-box">
-        <button id="kanji1" class="kanji-button">?</button>
-        <button class="info-button" onclick="showModal(0)">
-          <i class="fas fa-circle-info"></i>
-        </button>
-      </div>
-      <div class="kanji-box">
-        <button id="kanji2" class="kanji-button">?</button>
-        <button class="info-button" onclick="showModal(1)">
-          <i class="fas fa-circle-info"></i>
-        </button>
-      </div>
-    </div>
-  </div>
+  setTimeout(() => {    
+    loadKanji();    
+  }, 1000);    
+}    
 
-  <div id="kanjiModal" class="modal" onclick="hideModal(event)">
-    <div class="modal-content" id="modalContent">
-      <span class="close-button" onclick="closeModal()">×</span>
-      <div id="modalData"></div>
-    </div>
-  </div>
+function showModal(index) {    
+  const data = current[index];    
+  const modal = document.getElementById("kanjiModal");    
+  const modalData = document.getElementById("modalData");    
+  modalData.innerHTML = `    
+    <h2 style="font-size: 2em; margin-bottom: 0.2em;">${data.kanji}    
+      <a href="https://en.wiktionary.org/wiki/${data.kanji}" target="_blank" title="Wiktionary">    
+        <i class="fas fa-link"></i>    
+      </a>    
+    </h2>    
+    <p><strong>Значения:</strong> ${data.meanings.join(", ")}</p>    
+    <p><strong>Черт:</strong> ${data.stroke_count}</p>    
+    <p><strong>Онъёми:</strong> ${data.on_readings.join(", ") || "—"}</p>    
+    <p><strong>Кунъёми:</strong> ${data.kun_readings.join(", ") || "—"}</p>    
+    ${data.name_readings?.length ? `<p><strong>Имена:</strong> <em>${data.name_readings.join(", ")}</em></p>` : ""}    
+    ${data.jlpt ? `<p><strong>JLPT:</strong> N${data.jlpt}</p>` : ""}    
+  `;    
+  modal.style.display = "block";    
+}    
 
-  <button id="history-button" onclick="showHistory()">
-    <i class="fas fa-book-open"></i>
-  </button>
+function closeModal() {    
+  document.getElementById("kanjiModal").style.display = "none";    
+}    
 
-  <div id="historyModal" class="modal" onclick="hideHistoryModal(event)">
-    <div class="history-modal-content">
-      <span class="close-button" onclick="closeHistory()">×</span>
-      <h3>История</h3>
-      <ul id="historyList"></ul>
-    </div>
-  </div>
+function hideModal(event) {    
+  if (event.target.id === "kanjiModal") {    
+    closeModal();    
+  }    
+}    
 
-  <script>
-    let allKanji = [];
-    let current = [];
-    let score = 0;
-    let streak = 0;
-    let maxStreak = 0;
-    let lockInput = false;
-    const scoreEl = document.getElementById("score");
-    const difficultyEl = document.getElementById("difficulty-select");
-    const historyList = document.getElementById("historyList");
+function showHistory() {    
+  document.getElementById("historyModal").style.display = "block";    
+}    
 
-    async function fetchAllKanji() {
-      const res = await fetch('https://kanjiapi.dev/v1/kanji/joyo');
-      allKanji = await res.json();
-    }
+function closeHistory() {    
+  document.getElementById("historyModal").style.display = "none";    
+}    
 
-    async function getKanjiData(kanji) {
-      const res = await fetch(`https://kanjiapi.dev/v1/kanji/${kanji}`);
-      return await res.json();
-    }
+function hideHistoryModal(event) {    
+  if (event.target.id === "historyModal") {    
+    closeHistory();    
+  }    
+}    
 
-    function getDifficultyFilter() {
-      const diff = difficultyEl.value;
-      return (strokes) => {
-        if (diff === "easy") return strokes <= 6;
-        if (diff === "medium") return strokes >= 7 && strokes <= 12;
-        if (diff === "hard") return strokes > 12;
-      };
-    }
+document.getElementById("kanji1").onclick = () => checkAnswer(0);    
+document.getElementById("kanji2").onclick = () => checkAnswer(1);    
+difficultyEl.onchange = () => {    
+  loadKanji();    
+};    
 
-    async function loadKanji() {
-      document.body.style.backgroundColor = "#f5f5f5";
-      lockInput = true;
-      const filter = getDifficultyFilter();
+window.onload = () => {    
+  fetchAllKanji().then(() => loadKanji());    
+};
 
-      let d1, d2;
-      while (true) {
-        const k1 = allKanji[Math.floor(Math.random() * allKanji.length)];
-        d1 = await getKanjiData(k1);
-        if (!filter(d1.stroke_count)) continue;
+</script>  </body>
 
-        const k2 = allKanji[Math.floor(Math.random() * allKanji.length)];
-        d2 = await getKanjiData(k2);
-        if (
-          k1 !== k2 &&
-          filter(d2.stroke_count) &&
-          d1.stroke_count !== d2.stroke_count
-        ) break;
-      }
-
-      current = [d1, d2];
-      document.getElementById("kanji1").textContent = d1.kanji;
-      document.getElementById("kanji2").textContent = d2.kanji;
-      lockInput = false;
-    }
-
-    function updateScoreDisplay() {
-      document.getElementById("scoreValue").textContent = score;
-      document.getElementById("streakValue").textContent = streak;
-      document.getElementById("maxStreakValue").textContent = maxStreak;
-    }
-
-    function resetScore() {
-      score = 0;
-      streak = 0;
-      updateScoreDisplay();
-    }
-
-    function checkAnswer(choice) {
-      if (lockInput) return;
-      lockInput = true;
-
-      const other = choice === 0 ? 1 : 0;
-      const correct = current[choice].stroke_count > current[other].stroke_count;
-
-      if (correct) {
-        score++;
-        streak++;
-        if (streak > maxStreak) maxStreak = streak;
-        document.body.style.backgroundColor = "#aaffaa";
-      } else {
-        streak = 0;
-        document.body.style.backgroundColor = "#ffaaaa";
-      }
-
-      updateScoreDisplay();
-
-      const entry = document.createElement("li");
-      entry.className = "history-entry";
-      entry.innerHTML = `
-        <div class="history-kanji">${current[0].kanji} (${current[0].stroke_count}) vs ${current[1].kanji} (${current[1].stroke_count})</div>
-        <div class="history-details">
-          ${current[0].meanings.join(", ")} | 
-          ${current[1].meanings.join(", ")}
-        </div>
-      `;
-      historyList.prepend(entry);
-
-      setTimeout(() => {
-        loadKanji();
-      }, 1000);
-    }
-
-    function showModal(index) {
-      const data = current[index];
-      const modal = document.getElementById("kanjiModal");
-      const modalData = document.getElementById("modalData");
-      const wiktionaryLink = `https://en.wiktionary.org/wiki/${data.kanji}`;
-
-      modalData.innerHTML = `
-        <h2 style="font-size: 2em; margin-bottom: 0.2em; display: flex; align-items: center; gap: 10px;">
-          ${data.kanji}
-          <a href="${wiktionaryLink}" target="_blank" title="Открыть в Wiktionary" style="text-decoration: none;">
-            <i class="fas fa-external-link-alt" style="font-size: 0.6em; color: #007bff; transition: transform 0.2s, color 0.2s;"></i>
-          </a>
-        </h2>
-        <p><strong>Значения:</strong> ${data.meanings.join(", ")}</p>
-        <p><strong>Черт:</strong> ${data.stroke_count}</p>
-        <p><strong>Онъёми:</strong> ${data.on_readings.join(", ") || "—"}</p>
-        <p><strong>Кунъёми:</strong> ${data.kun_readings.join(", ") || "—"}</p>
-        ${data.name_readings && data.name_readings.length ? `<p><strong>Имена:</strong> <em>${data.name_readings.join(", ")}</em></p>` : ""}
-        ${data.jlpt ? `<p><strong>JLPT:</strong> N${data.jlpt}</p>` : ""}
-      `;
-      modal.style.display = "block";
-    }
-
-    function closeModal() {
-      document.getElementById("kanjiModal").style.display = "none";
-    }
-
-    function hideModal(event) {
-      if (event.target.id === "kanjiModal") {
-        closeModal();
-      }
-    }
-
-    function showHistory() {
-      document.getElementById("historyModal").style.display = "block";
-    }
-
-    function closeHistory() {
-      document.getElementById("historyModal").style.display = "none";
-    }
-
-    function hideHistoryModal(event) {
-      if (event.target.id === "historyModal") {
-        closeHistory();
-      }
-    }
-
-    document.getElementById("kanji1").onclick = () => checkAnswer(0);
-    document.getElementById("kanji2").onclick = () => checkAnswer(1);
-    difficultyEl.onchange = () => {
-      loadKanji();
-    };
-
-    window.onload = () => {
-      fetchAllKanji().then(() => loadKanji());
-    };
-  </script>
-</body>
-</html>
+</html> 
